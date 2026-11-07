@@ -724,9 +724,7 @@ export default function InvoiceView({
                   Kuantitas <PencilIcon onClick={() => setIsEditing(true)} />
                 </th>
                 <th className="py-3 px-4 text-right w-[11%]">Harga</th>
-                <th className="py-3 px-4 text-right w-[11%]">
-                  Jumlah <PencilIcon onClick={() => setIsEditing(true)} />
-                </th>
+                <th className="py-3 px-4 text-right w-[11%]">Jumlah</th>
                 {isEditing && (
                   <th className="no-print py-3 px-2 w-[4%] text-center print:hidden"></th>
                 )}
@@ -816,12 +814,9 @@ export default function InvoiceView({
                       )}
                     </td>
 
-                    {/* Jumlah */}
-                    <td className="py-3 px-4 text-right font-semibold text-slate-900">
-                      <div className="flex items-center justify-end">
-                        <span>{formatNumberIndo(item.amount)}</span>
-                        <PencilIcon onClick={() => setIsEditing(true)} />
-                      </div>
+                    {/* Jumlah (Otomatis: Kuantitas x Harga) */}
+                    <td className="py-3 px-4 text-right font-semibold text-slate-900 whitespace-nowrap">
+                      {formatNumberIndo(item.amount)}
                     </td>
 
                     {/* Delete row action */}
