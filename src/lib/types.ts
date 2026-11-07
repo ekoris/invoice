@@ -42,11 +42,29 @@ export interface InvoiceData {
   discount?: number;
   total: number;
 
+  // Contract & Term Breakdown
+  contractTotal?: number;
+  contractTerm?: string;
+  contractPaid?: number;
+  contractRemaining?: number;
+
+  // Payment Details
+  bankName?: string;
+  bankAccount?: string;
+  bankHolder?: string;
+  transferNote?: string;
+
+  // Tax Status & Terms
+  taxNote?: string;
+  termsConditions?: string;
+
   // Notes & Signature
   notes?: string;
   signatureImage?: string;
   signatureTitle?: string;
   signatureName?: string;
+  signerRole?: string;
+  showSignature?: boolean;
 
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -70,7 +88,10 @@ export interface CompanyProfileData {
   logoUrl?: string;
   signatureUrl?: string;
   signerName: string;
+  signerRole?: string;
   defaultNotes: string;
+  taxNote?: string;
+  termsConditions?: string;
 }
 
 export interface BankAccountData {

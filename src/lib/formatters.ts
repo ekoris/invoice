@@ -1,23 +1,24 @@
 /**
  * Format number to Indonesian Rupiah string
- * Example: 4800000 -> "Rp 4.800.000,00"
+ * Example: 4800000 -> "Rp 4.800.000" (no unnecessary ,00)
  */
 export function formatRupiah(amount: number | undefined | null, withPrefix = true): string {
   if (amount === undefined || amount === null || isNaN(amount)) {
-    return withPrefix ? "Rp 0,00" : "0,00";
+    return withPrefix ? "Rp 0" : "0";
   }
 
-  const parts = Math.abs(amount).toFixed(2).split(".");
-  const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  const decimalPart = parts[1];
+  // Rounded to whole rupiah without ,00 as requested
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(Math.round(amount));
+  const integerPart = absAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-  const formatted = `${amount < 0 ? "-" : ""}${integerPart},${decimalPart}`;
+  const formatted = `${isNegative ? "-" : ""}${integerPart}`;
   return withPrefix ? `Rp ${formatted}` : formatted;
 }
 
 /**
  * Format standard number without Rp
- * Example: 4800000 -> "4.800.000,00"
+ * Example: 4800000 -> "4.800.000"
  */
 export function formatNumberIndo(amount: number | undefined | null): string {
   return formatRupiah(amount, false);
@@ -95,4 +96,24 @@ export function toInputDate(dateStr: string | undefined | null): string {
     return `${dashMatch[1]}-${dashMatch[2]}-${dashMatch[3]}`;
   }
   return dateStr;
+}
+
+/**
+ * Calculate date by adding N days to a DD/MM/YYYY date string
+ */
+export function addDaysToDDMMYYYY(dateStr: string, days: number): string {
+  if (!dateStr) return "";
+  const parts = dateStr.trim().split("/");
+  let d: Date;
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    d = new Date(year, month, day);
+  } else {
+    d = new Date(dateStr);
+  }
+  if (isNaN(d.getTime())) return dateStr;
+  d.setDate(d.getDate() + days);
+  return formatDateDDMMYYYY(d);
 }

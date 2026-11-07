@@ -96,10 +96,25 @@ export async function createInvoice(data: InvoiceData) {
       discount: data.discount || 0,
       total: data.total,
 
+      contractTotal: Number(data.contractTotal) || 0,
+      contractTerm: data.contractTerm || "Termin I (DP 30%)",
+      contractPaid: Number(data.contractPaid) || 0,
+      contractRemaining: Number(data.contractRemaining) || 0,
+
+      bankName: data.bankName || "Bank Central Asia (BCA)",
+      bankAccount: data.bankAccount || "4560962725",
+      bankHolder: data.bankHolder || "Eko Rismaryanto",
+      transferNote: data.transferNote || "Cantumkan nomor invoice pada berita transfer",
+
+      taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+
       notes: data.notes || null,
       signatureImage: data.signatureImage || null,
       signatureTitle: data.signatureTitle || "Hormat Kami,",
       signatureName: data.signatureName || null,
+      signerRole: data.signerRole || "Pemilik, Lingkara Labs",
+      showSignature: data.showSignature !== undefined ? data.showSignature : true,
 
       items: {
         create: data.items.map((item, idx) => ({
@@ -155,10 +170,25 @@ export async function updateInvoice(id: string, data: InvoiceData) {
       discount: data.discount || 0,
       total: data.total,
 
+      contractTotal: Number(data.contractTotal) || 0,
+      contractTerm: data.contractTerm || "Termin I (DP 30%)",
+      contractPaid: Number(data.contractPaid) || 0,
+      contractRemaining: Number(data.contractRemaining) || 0,
+
+      bankName: data.bankName || "Bank Central Asia (BCA)",
+      bankAccount: data.bankAccount || "4560962725",
+      bankHolder: data.bankHolder || "Eko Rismaryanto",
+      transferNote: data.transferNote || "Cantumkan nomor invoice pada berita transfer",
+
+      taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+
       notes: data.notes || null,
       signatureImage: data.signatureImage || null,
       signatureTitle: data.signatureTitle || "Hormat Kami,",
       signatureName: data.signatureName || null,
+      signerRole: data.signerRole || "Pemilik, Lingkara Labs",
+      showSignature: data.showSignature !== undefined ? data.showSignature : true,
 
       items: {
         create: data.items.map((item, idx) => ({
@@ -263,7 +293,10 @@ export async function getCompanyProfile(): Promise<CompanyProfileData> {
         logoUrl: "/assets/default-logo.png",
         signatureUrl: "/assets/default-signature.png",
         signerName: "Eko Rismaryanto",
-        defaultNotes: "Kirim ke Rekening BCA a.n Eko Rismaryanto no. rek 4560962725",
+        signerRole: "Pemilik, Lingkara Labs",
+        defaultNotes: "Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.",
+        taxNote: "Bukan PKP (Harga tidak dikenakan PPN)",
+        termsConditions: "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
       },
     });
   }
@@ -282,7 +315,10 @@ export async function updateCompanyProfile(data: CompanyProfileData) {
       logoUrl: data.logoUrl || null,
       signatureUrl: data.signatureUrl || null,
       signerName: data.signerName,
+      signerRole: data.signerRole || "Pemilik, Lingkara Labs",
       defaultNotes: data.defaultNotes,
+      taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
     },
     create: {
       id: "default",
@@ -293,7 +329,10 @@ export async function updateCompanyProfile(data: CompanyProfileData) {
       logoUrl: data.logoUrl || null,
       signatureUrl: data.signatureUrl || null,
       signerName: data.signerName,
+      signerRole: data.signerRole || "Pemilik, Lingkara Labs",
       defaultNotes: data.defaultNotes,
+      taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
     },
   });
 

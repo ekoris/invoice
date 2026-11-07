@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { InvoiceData, InvoiceItemData } from "@/lib/types";
-import { formatNumberIndo, formatRupiah, formatDateDDMMYYYY, toInputDate } from "@/lib/formatters";
+import { formatNumberIndo, formatRupiah, formatDateDDMMYYYY, toInputDate, addDaysToDDMMYYYY } from "@/lib/formatters";
 import {
   Edit2,
   Printer,
@@ -17,6 +17,11 @@ import {
   Upload,
   CheckCircle2,
   Check,
+  Copy,
+  CreditCard,
+  FileText,
+  ShieldCheck,
+  Calendar,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { updateInvoice, updateInvoiceStatus } from "@/lib/actions";
@@ -38,19 +43,37 @@ export default function InvoiceView({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [isUploadingSig, setIsUploadingSig] = useState(false);
+  const [copiedAccount, setCopiedAccount] = useState(false);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const sigInputRef = useRef<HTMLInputElement>(null);
+
+  const handleCopyAccount = (acc: string) => {
+    navigator.clipboard.writeText(acc);
+    setCopiedAccount(true);
+    setTimeout(() => setCopiedAccount(false), 2000);
+  };
+
+  const handleSetDueDays = (days: number) => {
+    const newDueDate = addDaysToDDMMYYYY(invoice.issueDate, days);
+    updateField("dueDate", newDueDate);
+  };
 
   // Recalculate totals
   const recalculateTotals = (
     items: InvoiceItemData[],
     discount = invoice.discount || 0,
-    taxPercent = invoice.taxPercent || 0
+    taxPercent = invoice.taxPercent || 0,
+    contractTotal = invoice.contractTotal || 0,
+    contractPaid = invoice.contractPaid || 0
   ) => {
     const subtotal = items.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
     const taxAmount = (subtotal - discount) * (taxPercent / 100);
     const total = Math.max(0, subtotal - discount + taxAmount);
+    const contractRemaining = Math.max(
+      0,
+      (Number(contractTotal) || 0) - ((Number(contractPaid) || 0) + total)
+    );
 
     setInvoice((prev) => ({
       ...prev,
@@ -60,6 +83,7 @@ export default function InvoiceView({
       taxAmount,
       discount,
       total,
+      contractRemaining,
     }));
     setHasChanges(true);
   };
@@ -506,22 +530,51 @@ export default function InvoiceView({
               </div>
 
               {/* Tgl. Jatuh Tempo */}
-              <div className="flex justify-between items-center space-x-6">
-                <span className="text-slate-700 text-right font-normal">Tgl. Jatuh Tempo</span>
-                <span className="font-semibold text-slate-900 min-w-[120px] text-right">
+              <div className="flex justify-between items-start space-x-6">
+                <span className="text-slate-700 text-right font-normal pt-0.5">Tgl. Jatuh Tempo</span>
+                <div className="font-semibold text-slate-900 min-w-[120px] text-right flex flex-col items-end">
                   {isEditing ? (
-                    <input
-                      type="date"
-                      value={toInputDate(invoice.dueDate)}
-                      onChange={(e) =>
-                        updateField("dueDate", formatDateDDMMYYYY(e.target.value))
-                      }
-                      className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
-                    />
+                    <>
+                      <input
+                        type="date"
+                        value={toInputDate(invoice.dueDate)}
+                        onChange={(e) =>
+                          updateField("dueDate", formatDateDDMMYYYY(e.target.value))
+                        }
+                        className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
+                      />
+                      <div className="no-print flex items-center space-x-1 mt-1 text-[11px] print:hidden">
+                        <span className="text-slate-400 text-[10px]">Termin:</span>
+                        <button
+                          type="button"
+                          onClick={() => handleSetDueDays(7)}
+                          className="px-1.5 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-slate-600 font-medium cursor-pointer"
+                          title="7 Hari dari Tanggal Invoice"
+                        >
+                          7h
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetDueDays(14)}
+                          className="px-1.5 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-slate-600 font-medium cursor-pointer"
+                          title="14 Hari dari Tanggal Invoice"
+                        >
+                          14h
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSetDueDays(30)}
+                          className="px-1.5 py-0.5 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded text-slate-600 font-medium cursor-pointer"
+                          title="30 Hari dari Tanggal Invoice"
+                        >
+                          30h
+                        </button>
+                      </div>
+                    </>
                   ) : (
                     <span>{formatDateDDMMYYYY(invoice.dueDate)}</span>
                   )}
-                </span>
+                </div>
               </div>
             </div>
           </div>
@@ -752,7 +805,7 @@ export default function InvoiceView({
                     </td>
 
                     {/* Harga Satuan */}
-                    <td className="py-3 px-4 text-right font-medium text-slate-900">
+                    <td className="py-3 px-4 text-right font-medium text-slate-900 whitespace-nowrap">
                       {isEditing ? (
                         <input
                           type="number"
@@ -765,13 +818,13 @@ export default function InvoiceView({
                           className="w-28 border border-slate-300 rounded px-1.5 py-1 text-xs font-medium text-right focus:ring-1 focus:ring-indigo-500"
                         />
                       ) : (
-                        <span>{formatNumberIndo(item.unitPrice)}</span>
+                        <span>{formatRupiah(item.unitPrice)}</span>
                       )}
                     </td>
 
                     {/* Jumlah (Otomatis: Kuantitas x Harga) */}
                     <td className="py-3 px-4 text-right font-semibold text-slate-900 whitespace-nowrap">
-                      {formatNumberIndo(item.amount)}
+                      {formatRupiah(item.amount)}
                     </td>
 
                     {/* Delete row action */}
@@ -816,54 +869,296 @@ export default function InvoiceView({
           </div>
         )}
 
-        {/* Bottom Section: Notes & Total */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-6">
-          {/* Notes / Pesan */}
-          <div className="md:col-span-7">
-            <div className="font-bold text-indigo-700 text-sm mb-1">
-              Pesan
-            </div>
-            <div className="border border-slate-900 rounded-xs p-3 min-h-[90px] text-xs sm:text-sm text-slate-800 leading-relaxed relative bg-white">
+        {/* Rincian Kontrak & Termin Pembayaran (Eksplisit untuk DP/Termin) */}
+        {((invoice.contractTotal && invoice.contractTotal > 0) || isEditing) && (
+          <div className="mt-6 bg-slate-50 border border-slate-200/90 rounded-xl p-4 sm:p-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-200 gap-2">
+              <div className="flex items-center space-x-2 text-slate-900 font-bold text-sm">
+                <FileText className="w-4 h-4 text-[#6348f9]" />
+                <span>Rincian Kontrak & Termin Pembayaran</span>
+              </div>
               {isEditing ? (
-                <textarea
-                  rows={3}
-                  value={invoice.notes || ""}
-                  onChange={(e) => updateField("notes", e.target.value)}
-                  className="w-full border border-slate-200 rounded p-1 text-xs focus:ring-1 focus:ring-indigo-500"
-                />
+                <div className="flex items-center space-x-2 text-xs">
+                  <span className="text-slate-500">Keterangan Termin:</span>
+                  <input
+                    type="text"
+                    value={invoice.contractTerm || ""}
+                    placeholder="Contoh: Termin I (DP 30%)"
+                    onChange={(e) => updateField("contractTerm", e.target.value)}
+                    className="border border-slate-300 rounded px-2 py-0.5 text-xs font-semibold w-48"
+                  />
+                </div>
               ) : (
-                <div>{invoice.notes || "Tidak ada catatan khusus."}</div>
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full self-start sm:self-auto">
+                  {invoice.contractTerm || "Termin I (DP 30%)"}
+                </span>
               )}
             </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs sm:text-sm">
+              {/* Total Nilai Kontrak */}
+              <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
+                <span className="text-slate-500 text-xs block mb-1">Total Nilai Kontrak</span>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={invoice.contractTotal || 0}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) || 0;
+                      updateField("contractTotal", val);
+                      recalculateTotals(
+                        invoice.items,
+                        invoice.discount,
+                        invoice.taxPercent,
+                        val,
+                        invoice.contractPaid
+                      );
+                    }}
+                    className="w-full border border-slate-300 rounded px-2 py-1 text-sm font-bold text-slate-900"
+                  />
+                ) : (
+                  <span className="font-bold text-slate-900 text-base">
+                    {formatRupiah(invoice.contractTotal)}
+                  </span>
+                )}
+              </div>
+
+              {/* Tagihan Termin Ini */}
+              <div className="bg-white border border-indigo-200 rounded-lg p-3 shadow-2xs">
+                <span className="text-indigo-600 font-semibold text-xs block mb-1">
+                  Tagihan Termin Ini
+                </span>
+                <span className="font-extrabold text-[#6348f9] text-base">
+                  {formatRupiah(invoice.total)}
+                </span>
+              </div>
+
+              {/* Sisa Pembayaran Kontrak */}
+              <div className="bg-white border border-slate-200 rounded-lg p-3 shadow-2xs">
+                <span className="text-slate-500 text-xs block mb-1">Sisa Pembayaran Kontrak</span>
+                <span className="font-bold text-slate-700 text-base">
+                  {formatRupiah(
+                    invoice.contractRemaining ??
+                      Math.max(
+                        0,
+                        (invoice.contractTotal || 0) -
+                          ((invoice.contractPaid || 0) + invoice.total)
+                      )
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom Section: Payment Info, Notes & Calculation */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 mt-6">
+          {/* Left Column: Blok Informasi Pembayaran & Catatan */}
+          <div className="md:col-span-7 space-y-4">
+            {/* Blok Informasi Pembayaran (Rekening Bank Resmi) */}
+            <div className="bg-slate-50/90 border border-slate-200 rounded-xl p-4 sm:p-5">
+              <div className="flex items-center space-x-2 text-indigo-700 font-bold text-sm mb-3">
+                <CreditCard className="w-4 h-4 text-[#6348f9]" />
+                <span className="text-slate-900">Informasi Pembayaran</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                <div>
+                  <span className="text-slate-500 text-xs block">Bank Tujuan</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={invoice.bankName || ""}
+                      onChange={(e) => updateField("bankName", e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-0.5 text-xs font-semibold w-full mt-0.5"
+                    />
+                  ) : (
+                    <span className="font-bold text-slate-900">
+                      {invoice.bankName || "Bank Central Asia (BCA)"}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-xs block">Atas Nama</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={invoice.bankHolder || ""}
+                      onChange={(e) => updateField("bankHolder", e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-0.5 text-xs font-semibold w-full mt-0.5"
+                    />
+                  ) : (
+                    <span className="font-bold text-slate-900">
+                      {invoice.bankHolder || "Eko Rismaryanto"}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-xs block">Nomor Rekening</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={invoice.bankAccount || ""}
+                      onChange={(e) => updateField("bankAccount", e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-0.5 text-xs font-mono font-bold w-full mt-0.5"
+                    />
+                  ) : (
+                    <div className="flex items-center space-x-2 mt-0.5">
+                      <span className="font-mono font-bold text-slate-900 text-sm sm:text-base tracking-wider bg-white px-2 py-0.5 border border-slate-200 rounded">
+                        {invoice.bankAccount || "4560962725"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleCopyAccount(invoice.bankAccount || "4560962725")}
+                        className="no-print text-xs text-indigo-600 hover:text-indigo-800 p-1 rounded hover:bg-indigo-50 transition-colors print:hidden cursor-pointer"
+                        title="Salin Nomor Rekening"
+                      >
+                        {copiedAccount ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <span className="text-slate-500 text-xs block">Berita Transfer</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={invoice.transferNote || ""}
+                      onChange={(e) => updateField("transferNote", e.target.value)}
+                      className="border border-slate-300 rounded px-2 py-0.5 text-xs w-full mt-0.5"
+                    />
+                  ) : (
+                    <div className="mt-0.5">
+                      <span className="font-mono font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded px-2 py-0.5 text-xs">
+                        {invoice.invoiceNumber}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-[11px] text-slate-500 mt-2.5">
+                * Harap cantumkan referensi invoice <strong>{invoice.invoiceNumber}</strong> pada berita transfer untuk kemudahan verifikasi.
+              </p>
+            </div>
+
+            {/* Kotak Pesan / Catatan Khusus (Tinggi mengikuti isi, border seragam dengan tabel) */}
+            {(invoice.notes || isEditing) && (
+              <div className="border border-slate-200 rounded-xl p-3.5 bg-slate-50/50 text-xs sm:text-sm text-slate-700">
+                <div className="font-semibold text-slate-900 text-xs mb-1">
+                  Catatan Khusus:
+                </div>
+                {isEditing ? (
+                  <textarea
+                    rows={2}
+                    value={invoice.notes || ""}
+                    onChange={(e) => updateField("notes", e.target.value)}
+                    className="w-full border border-slate-200 rounded p-2 text-xs bg-white focus:ring-1 focus:ring-indigo-500"
+                    placeholder="Tambahkan catatan khusus untuk klien..."
+                  />
+                ) : (
+                  <p className="leading-relaxed whitespace-pre-line">{invoice.notes}</p>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Subtotal & Total */}
-          <div className="md:col-span-5 flex flex-col justify-end text-right">
-            <div className="space-y-2">
+          {/* Right Column: Perhitungan Subtotal, Pajak/Diskon, & Total */}
+          <div className="md:col-span-5 flex flex-col justify-between text-right">
+            <div className="space-y-2.5 bg-slate-50/40 p-4 rounded-xl border border-slate-200/60">
+              {/* Subtotal */}
               <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-700 font-semibold">Subtotal</span>
+                <span className="text-slate-600 font-medium">Subtotal</span>
                 <span className="font-semibold text-slate-900">
                   {formatRupiah(invoice.subtotal)}
                 </span>
               </div>
 
-              {invoice.discount ? (
+              {/* Diskon */}
+              {(invoice.discount || 0) > 0 || isEditing ? (
                 <div className="flex justify-between items-center text-sm text-rose-600">
-                  <span>Diskon</span>
-                  <span>- {formatRupiah(invoice.discount)}</span>
+                  <span className="font-medium">Diskon</span>
+                  {isEditing ? (
+                    <div className="flex items-center space-x-1">
+                      <span className="text-xs">- Rp</span>
+                      <input
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={invoice.discount || 0}
+                        onChange={(e) => {
+                          const disc = Number(e.target.value) || 0;
+                          updateField("discount", disc);
+                          recalculateTotals(
+                            invoice.items,
+                            disc,
+                            invoice.taxPercent,
+                            invoice.contractTotal,
+                            invoice.contractPaid
+                          );
+                        }}
+                        className="w-24 border border-slate-300 rounded px-1.5 py-0.5 text-xs text-right text-rose-600 font-semibold"
+                      />
+                    </div>
+                  ) : (
+                    <span>- {formatRupiah(invoice.discount)}</span>
+                  )}
                 </div>
               ) : null}
 
-              {invoice.taxAmount ? (
-                <div className="flex justify-between items-center text-sm text-slate-700">
-                  <span>Pajak ({invoice.taxPercent}%)</span>
-                  <span>+ {formatRupiah(invoice.taxAmount)}</span>
+              {/* Pajak / PPN */}
+              <div className="flex justify-between items-center text-sm text-slate-700">
+                <div className="flex items-center space-x-1 text-slate-600">
+                  <span className="font-medium">Pajak (PPN)</span>
+                  {isEditing && (
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="any"
+                      value={invoice.taxPercent || 0}
+                      onChange={(e) => {
+                        const tax = Number(e.target.value) || 0;
+                        updateField("taxPercent", tax);
+                        recalculateTotals(
+                          invoice.items,
+                          invoice.discount,
+                          tax,
+                          invoice.contractTotal,
+                          invoice.contractPaid
+                        );
+                      }}
+                      className="w-12 border border-slate-300 rounded px-1 py-0.5 text-xs text-center"
+                    />
+                  )}
+                  {invoice.taxPercent ? (
+                    <span className="text-xs text-slate-500">({invoice.taxPercent}%)</span>
+                  ) : (
+                    <span className="text-[11px] text-slate-500 bg-slate-200/80 px-1.5 py-0.2 rounded">
+                      Non-PKP
+                    </span>
+                  )}
                 </div>
-              ) : null}
+                <span className="font-medium text-slate-900">
+                  {invoice.taxAmount && invoice.taxAmount > 0
+                    ? `+ ${formatRupiah(invoice.taxAmount)}`
+                    : "Rp 0"}
+                </span>
+              </div>
 
-              <div className="pt-2 border-t border-slate-300">
+              {/* Total (Tanpa Garis Bawah) */}
+              <div className="pt-3 border-t border-slate-300 mt-2">
                 <div className="flex justify-between items-baseline">
-                  <span className="text-2xl font-black underline tracking-tight text-slate-900">
+                  <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                     Total
                   </span>
                   <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
@@ -871,14 +1166,30 @@ export default function InvoiceView({
                   </span>
                 </div>
               </div>
+
+              {/* Status Pajak Note */}
+              <div className="text-[11px] text-slate-500 pt-1 text-right italic">
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={invoice.taxNote || ""}
+                    onChange={(e) => updateField("taxNote", e.target.value)}
+                    className="w-full border border-slate-200 rounded px-1.5 py-0.5 text-[11px] text-right text-slate-600"
+                  />
+                ) : (
+                  <span>
+                    * {invoice.taxNote || "Bukan Pengusaha Kena Pajak (Non-PKP) — Bebas PPN"}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Signature & Closing */}
         <div className="mt-12 flex justify-end">
-          <div className="w-60 text-right flex flex-col items-end">
-            <div className="text-sm font-semibold text-slate-800 mb-2">
+          <div className="w-64 text-right flex flex-col items-end">
+            <div className="text-sm font-semibold text-slate-800 mb-1">
               {isEditing ? (
                 <input
                   type="text"
@@ -891,86 +1202,196 @@ export default function InvoiceView({
               )}
             </div>
 
-            {/* Signature Image & upload trigger */}
-            <input
-              type="file"
-              ref={sigInputRef}
-              accept="image/*"
-              className="hidden"
-              onChange={handleSignatureUpload}
-            />
-
-            {invoice.signatureImage ? (
-              <div className="flex flex-col items-end space-y-1">
-                <div
-                  onClick={() => sigInputRef.current?.click()}
-                  className="relative w-40 h-20 my-1 cursor-pointer group"
-                  title="Klik untuk mengganti tanda tangan"
-                >
-                  <Image
-                    src={invoice.signatureImage}
-                    alt="Tanda Tangan"
-                    fill
-                    className="object-contain object-right group-hover:opacity-80 transition-opacity"
-                    unoptimized
+            {/* Toggle show/hide physical signature vs digital invoice */}
+            {isEditing && (
+              <div className="no-print my-1 print:hidden flex items-center space-x-1 text-xs">
+                <label className="flex items-center space-x-1 cursor-pointer text-slate-600">
+                  <input
+                    type="checkbox"
+                    checked={invoice.showSignature !== false}
+                    onChange={(e) => updateField("showSignature", e.target.checked)}
+                    className="rounded text-indigo-600 focus:ring-indigo-500"
                   />
-                  <span className="no-print absolute inset-0 flex items-center justify-center bg-black/40 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 rounded transition-opacity print:hidden">
-                    Ganti TTD
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => sigInputRef.current?.click()}
-                  disabled={isUploadingSig}
-                  className="no-print text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold print:hidden flex items-center space-x-1 cursor-pointer"
-                >
-                  {isUploadingSig ? (
-                    <>
-                      <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
-                      <span>Mengunggah...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3 h-3" />
-                      <span>Ganti Tanda Tangan</span>
-                    </>
-                  )}
-                </button>
+                  <span>Tampilkan Tanda Tangan</span>
+                </label>
               </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => sigInputRef.current?.click()}
-                disabled={isUploadingSig}
-                className="no-print h-16 w-40 border border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-100/50 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer print:hidden my-1 space-x-1"
-              >
-                {isUploadingSig ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
-                    <span>Mengunggah...</span>
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-3.5 h-3.5 text-slate-500" />
-                    <span>+ Upload TTD</span>
-                  </>
-                )}
-              </button>
             )}
 
-            {/* Signer Name */}
-            <div className="text-sm font-bold text-slate-900 mt-1 border-t border-slate-300 pt-1 w-full text-right">
-              {isEditing ? (
+            {/* Signature Image or Digital Verification Badge */}
+            {invoice.showSignature !== false ? (
+              <>
                 <input
-                  type="text"
-                  value={invoice.signatureName || ""}
-                  onChange={(e) => updateField("signatureName", e.target.value)}
-                  className="text-right border border-slate-300 rounded px-1.5 py-0.5 text-xs font-bold w-full"
+                  type="file"
+                  ref={sigInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleSignatureUpload}
                 />
+
+                {invoice.signatureImage ? (
+                  <div className="flex flex-col items-end space-y-1">
+                    <div
+                      onClick={() => sigInputRef.current?.click()}
+                      className="relative w-40 h-20 my-1 cursor-pointer group"
+                      title="Klik untuk mengganti tanda tangan"
+                    >
+                      <Image
+                        src={invoice.signatureImage}
+                        alt="Tanda Tangan"
+                        fill
+                        className="object-contain object-right group-hover:opacity-80 transition-opacity"
+                        unoptimized
+                      />
+                      <span className="no-print absolute inset-0 flex items-center justify-center bg-black/40 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 rounded transition-opacity print:hidden">
+                        Ganti TTD
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => sigInputRef.current?.click()}
+                      disabled={isUploadingSig}
+                      className="no-print text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold print:hidden flex items-center space-x-1 cursor-pointer"
+                    >
+                      {isUploadingSig ? (
+                        <>
+                          <Loader2 className="w-3 h-3 animate-spin text-indigo-600" />
+                          <span>Mengunggah...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-3 h-3" />
+                          <span>Ganti Tanda Tangan</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => sigInputRef.current?.click()}
+                    disabled={isUploadingSig}
+                    className="no-print h-16 w-40 border border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/50 hover:bg-slate-100/50 rounded-lg flex items-center justify-center text-xs font-semibold text-slate-600 hover:text-slate-800 cursor-pointer print:hidden my-1 space-x-1"
+                  >
+                    {isUploadingSig ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                        <span>Mengunggah...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3.5 h-3.5 text-slate-500" />
+                        <span>+ Upload TTD</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </>
+            ) : (
+              <div className="border border-emerald-200 bg-emerald-50/60 rounded-lg p-2.5 my-2 text-right">
+                <div className="flex items-center justify-end space-x-1 text-emerald-700 text-xs font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Invoice Digital Sah</span>
+                </div>
+                <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">
+                  Diterbitkan secara elektronik oleh sistem {invoice.companyName}
+                </p>
+              </div>
+            )}
+
+            {/* Signer Name & Signer Role (Konteks Jabatan & Usaha) */}
+            <div className="text-right mt-1 border-t border-slate-300 pt-1.5 w-full">
+              {isEditing ? (
+                <div className="space-y-1">
+                  <input
+                    type="text"
+                    value={invoice.signatureName || ""}
+                    onChange={(e) => updateField("signatureName", e.target.value)}
+                    placeholder="Nama Penandatangan"
+                    className="text-right border border-slate-300 rounded px-1.5 py-0.5 text-xs font-bold w-full"
+                  />
+                  <input
+                    type="text"
+                    value={invoice.signerRole || ""}
+                    onChange={(e) => updateField("signerRole", e.target.value)}
+                    placeholder="Jabatan (cth: Pemilik, Lingkara Labs)"
+                    className="text-right border border-slate-300 rounded px-1.5 py-0.5 text-[11px] text-slate-600 w-full"
+                  />
+                </div>
               ) : (
-                <span>{invoice.signatureName}</span>
+                <>
+                  <div className="text-sm font-bold text-slate-900">
+                    {invoice.signatureName || "Eko Rismaryanto"}
+                  </div>
+                  <div className="text-xs text-slate-600 font-medium mt-0.5">
+                    {invoice.signerRole || "Pemilik, Lingkara Labs"}
+                  </div>
+                </>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Invoice Footer: Syarat & Ketentuan, Sanksi, Ucapan Terima Kasih */}
+        <div className="mt-14 pt-6 border-t border-slate-200 text-slate-600">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Syarat & Ketentuan */}
+            <div>
+              <div className="font-bold text-xs uppercase tracking-wider text-slate-800 mb-2">
+                Syarat & Ketentuan Pembayaran
+              </div>
+              {isEditing ? (
+                <textarea
+                  rows={4}
+                  value={invoice.termsConditions || ""}
+                  onChange={(e) => updateField("termsConditions", e.target.value)}
+                  className="w-full border border-slate-200 rounded p-2 text-xs leading-relaxed"
+                  placeholder="Syarat dan ketentuan pembayaran..."
+                />
+              ) : (
+                <div className="text-xs space-y-1 text-slate-600 leading-relaxed whitespace-pre-line">
+                  {invoice.termsConditions || (
+                    <>
+                      <p>1. Pembayaran ditransfer sesuai nomor rekening pada Informasi Pembayaran di atas.</p>
+                      <p>2. Pembayaran dianggap sah jika dana efektif telah masuk ke rekening penyedia jasa.</p>
+                      <p>3. Harap konfirmasi bukti pembayaran via WhatsApp ({invoice.companyPhone}) atau email resmi.</p>
+                      <p>4. Keterlambatan pembayaran termin dapat menangguhkan kelanjutan jadwal pengerjaan sistem.</p>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Ucapan Terima Kasih & Bantuan */}
+            <div className="flex flex-col justify-between text-xs sm:text-right">
+              <div>
+                <div className="font-bold text-xs uppercase tracking-wider text-slate-800 mb-2 sm:text-right">
+                  Bantuan & Konfirmasi
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Ada pertanyaan mengenai invoice ini? Hubungi kami di:
+                  <br />
+                  <span className="font-semibold text-slate-900">
+                    {invoice.companyPhone || "082377673248"}
+                  </span>{" "}
+                  •{" "}
+                  <span className="font-semibold text-slate-900">
+                    {invoice.companyEmail || "eko.rismaryanto15@gmail.com"}
+                  </span>
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-dashed border-slate-200 sm:text-right">
+                <p className="text-xs font-semibold text-[#6348f9] italic">
+                  &ldquo;Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan {invoice.companyName || "Lingkara Labs"}.&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Bar Ref */}
+          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center text-[11px] text-slate-400">
+            <span>Invoice ID: {invoice.id} • Ref: {invoice.invoiceNumber}</span>
+            <span>Sistem Invoice Digital Lingkara Labs</span>
           </div>
         </div>
 

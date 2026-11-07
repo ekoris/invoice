@@ -8,16 +8,19 @@ datasource db {
 }
 
 model CompanyProfile {
-  id           String   @id @default("default")
-  name         String   @default("Lingkara Labs")
-  address      String   @default("Dsn Babadan, Bantul, Bantul, DIY")
-  phone        String   @default("082377673248")
-  email        String   @default("eko.rismaryanto15@gmail.com")
-  logoUrl      String?
-  signatureUrl String?
-  signerName   String   @default("Eko Rismaryanto")
-  defaultNotes String   @default("Kirim ke Rekening BCA a.n Eko Rismaryanto no. rek 4560962725")
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default("default")
+  name            String   @default("Lingkara Labs")
+  address         String   @default("Dsn Babadan, Bantul, Bantul, DIY")
+  phone           String   @default("082377673248")
+  email           String   @default("eko.rismaryanto15@gmail.com")
+  logoUrl         String?
+  signatureUrl    String?
+  signerName      String   @default("Eko Rismaryanto")
+  signerRole      String   @default("Pemilik, Lingkara Labs")
+  defaultNotes    String   @default("Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.")
+  taxNote         String   @default("Bukan PKP (Harga tidak dikenakan PPN)")
+  termsConditions String   @default("1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.")
+  updatedAt       DateTime @updatedAt
 }
 
 model Client {
@@ -62,17 +65,35 @@ model Invoice {
   clientEmail    String?
 
   // Calculation
-  subtotal       Float         @default(0)
-  taxPercent     Float         @default(0)
-  taxAmount      Float         @default(0)
-  discount       Float         @default(0)
-  total          Float         @default(0)
+  subtotal          Float         @default(0)
+  taxPercent        Float         @default(0)
+  taxAmount         Float         @default(0)
+  discount          Float         @default(0)
+  total             Float         @default(0)
+
+  // Contract & Term Breakdown
+  contractTotal     Float?        @default(0)
+  contractTerm      String?       @default("Termin I (DP 30%)")
+  contractPaid      Float?        @default(0)
+  contractRemaining Float?        @default(0)
+
+  // Payment Details
+  bankName          String?       @default("Bank Central Asia (BCA)")
+  bankAccount       String?       @default("4560962725")
+  bankHolder        String?       @default("Eko Rismaryanto")
+  transferNote      String?       @default("Cantumkan no. invoice pada berita transfer")
+
+  // Tax Status & Terms
+  taxNote           String?       @default("Bukan PKP (Harga tidak dikenakan PPN)")
+  termsConditions   String?       @default("1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.")
 
   // Notes & Signature
-  notes          String?
-  signatureImage String?
-  signatureTitle String        @default("Hormat Kami,")
-  signatureName  String?
+  notes             String?
+  signatureImage    String?
+  signatureTitle    String        @default("Hormat Kami,")
+  signatureName     String?       @default("Eko Rismaryanto")
+  signerRole        String?       @default("Pemilik, Lingkara Labs")
+  showSignature     Boolean       @default(true)
 
   items          InvoiceItem[]
 
