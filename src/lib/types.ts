@@ -57,6 +57,8 @@ export interface InvoiceData {
   // Tax Status & Terms
   taxNote?: string;
   termsConditions?: string;
+  helpContact?: string;
+  thankYouNote?: string;
 
   // Notes & Signature
   notes?: string;
@@ -92,6 +94,8 @@ export interface CompanyProfileData {
   defaultNotes: string;
   taxNote?: string;
   termsConditions?: string;
+  helpContact?: string;
+  thankYouNote?: string;
 }
 
 export interface BankAccountData {

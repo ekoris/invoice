@@ -1157,6 +1157,61 @@ export default function InvoiceForm({
               </div>
             </div>
           </div>
+          {/* Section 6: Footer & Klausul Dokumen (Dinamis) */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
+            <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+              Footer & Klausul Faktur (Dapat Disesuaikan)
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Syarat & Ketentuan Pembayaran
+                </label>
+                <textarea
+                  rows={4}
+                  value={formData.termsConditions || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, termsConditions: e.target.value })
+                  }
+                  placeholder="1. Pembayaran ditransfer sesuai nomor rekening..."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs leading-relaxed focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Bantuan & Konfirmasi Kontak
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.helpContact || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, helpContact: e.target.value })
+                    }
+                    placeholder="WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Ucapan Terima Kasih / Kalimat Penutup
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.thankYouNote || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, thankYouNote: e.target.value })
+                    }
+                    placeholder="Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs."
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </form>
       )}
     </div>

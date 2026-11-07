@@ -639,11 +639,18 @@ export function generateInvoiceHtml(invoice: InvoiceData): string {
         <div class="footer-col-right">
           <div class="footer-title">Bantuan & Konfirmasi</div>
           <div>
-            WhatsApp: <strong>${escapeHtml(invoice.companyPhone || "082377673248")}</strong><br>
-            Email: <strong>${escapeHtml(invoice.companyEmail || "eko.rismaryanto15@gmail.com")}</strong>
+            ${
+              invoice.helpContact
+                ? escapeHtml(invoice.helpContact).replace(/\n/g, "<br>")
+                : `WhatsApp: <strong>${escapeHtml(invoice.companyPhone || "082377673248")}</strong><br>
+                   Email: <strong>${escapeHtml(invoice.companyEmail || "eko.rismaryanto15@gmail.com")}</strong>`
+            }
           </div>
           <div class="footer-thanks">
-            &ldquo;Terima kasih atas kerja sama dan kepercayaan Anda bersama ${escapeHtml(invoice.companyName || "Lingkara Labs")}.&rdquo;
+            &ldquo;${escapeHtml(
+              invoice.thankYouNote ||
+                `Terima kasih atas kerja sama dan kepercayaan Anda bersama ${invoice.companyName || "Lingkara Labs"}.`
+            )}&rdquo;
           </div>
         </div>
       </div>

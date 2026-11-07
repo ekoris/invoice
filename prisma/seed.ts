@@ -97,6 +97,8 @@ async function main() {
       // Catatan Pajak & Syarat Ketentuan Footer
       taxNote: "Bukan PKP (Harga tidak dikenakan PPN)",
       termsConditions: "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana efektif telah masuk ke rekening penyedia.\n3. Harap konfirmasi bukti transfer via WhatsApp (082377673248) atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda jadwal pengerjaan tahap selanjutnya.",
+      helpContact: "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
 
       notes: "Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.",
       signatureImage: "/assets/default-signature.png",
@@ -142,6 +144,8 @@ async function main() {
       // Catatan Pajak & Syarat Ketentuan Footer
       taxNote: "Bukan PKP (Harga tidak dikenakan PPN)",
       termsConditions: "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana efektif telah masuk ke rekening penyedia.\n3. Harap konfirmasi bukti transfer via WhatsApp (082377673248) atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda jadwal pengerjaan tahap selanjutnya.",
+      helpContact: "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
 
       notes: "Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.",
       signatureImage: "/assets/default-signature.png",

@@ -107,7 +107,9 @@ export async function createInvoice(data: InvoiceData) {
       transferNote: data.transferNote || "Cantumkan nomor invoice pada berita transfer",
 
       taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
-      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.",
+      helpContact: data.helpContact || "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: data.thankYouNote || "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
 
       notes: data.notes || null,
       signatureImage: data.signatureImage || null,
@@ -181,7 +183,9 @@ export async function updateInvoice(id: string, data: InvoiceData) {
       transferNote: data.transferNote || "Cantumkan nomor invoice pada berita transfer",
 
       taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
-      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.",
+      helpContact: data.helpContact || "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: data.thankYouNote || "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
 
       notes: data.notes || null,
       signatureImage: data.signatureImage || null,
@@ -296,7 +300,9 @@ export async function getCompanyProfile(): Promise<CompanyProfileData> {
         signerRole: "Pemilik, Lingkara Labs",
         defaultNotes: "Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.",
         taxNote: "Bukan PKP (Harga tidak dikenakan PPN)",
-        termsConditions: "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+        termsConditions: "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.",
+        helpContact: "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+        thankYouNote: "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
       },
     });
   }
@@ -318,7 +324,9 @@ export async function updateCompanyProfile(data: CompanyProfileData) {
       signerRole: data.signerRole || "Pemilik, Lingkara Labs",
       defaultNotes: data.defaultNotes,
       taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
-      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.",
+      helpContact: data.helpContact || "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: data.thankYouNote || "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
     },
     create: {
       id: "default",
@@ -332,7 +340,9 @@ export async function updateCompanyProfile(data: CompanyProfileData) {
       signerRole: data.signerRole || "Pemilik, Lingkara Labs",
       defaultNotes: data.defaultNotes,
       taxNote: data.taxNote || "Bukan PKP (Harga tidak dikenakan PPN)",
-      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.",
+      termsConditions: data.termsConditions || "1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.",
+      helpContact: data.helpContact || "WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com",
+      thankYouNote: data.thankYouNote || "Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.",
     },
   });
 

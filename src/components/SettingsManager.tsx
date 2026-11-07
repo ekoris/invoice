@@ -264,23 +264,101 @@ export default function SettingsManager({
               )}
             </div>
 
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Nama Penandatangan
+                </label>
+                <input
+                  type="text"
+                  value={profile.signerName}
+                  onChange={(e) => setProfile({ ...profile, signerName: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Jabatan Penandatangan
+                </label>
+                <input
+                  type="text"
+                  value={profile.signerRole || ""}
+                  placeholder="Pemilik, Lingkara Labs"
+                  onChange={(e) => setProfile({ ...profile, signerRole: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer & Template Settings */}
+        <div className="pt-4 border-t border-slate-100 space-y-4">
+          <h3 className="text-sm font-bold text-slate-900">
+            Pengaturan Default Footer & Klausul Tagihan
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Nama Penandatangan
+                Syarat & Ketentuan Pembayaran (Default)
               </label>
-              <input
-                type="text"
-                value={profile.signerName}
-                onChange={(e) => setProfile({ ...profile, signerName: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+              <textarea
+                rows={4}
+                value={profile.termsConditions || ""}
+                onChange={(e) => setProfile({ ...profile, termsConditions: e.target.value })}
+                placeholder="1. Pembayaran ditransfer sesuai nomor rekening..."
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs leading-relaxed focus:ring-2 focus:ring-indigo-500"
               />
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Bantuan & Konfirmasi Kontak (Default)
+                </label>
+                <input
+                  type="text"
+                  value={profile.helpContact || ""}
+                  onChange={(e) => setProfile({ ...profile, helpContact: e.target.value })}
+                  placeholder="WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Ucapan Terima Kasih (Default)
+                </label>
+                <input
+                  type="text"
+                  value={profile.thankYouNote || ""}
+                  onChange={(e) => setProfile({ ...profile, thankYouNote: e.target.value })}
+                  placeholder="Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Catatan Pajak Default (Non-PKP / Catatan Pajak)
+                </label>
+                <input
+                  type="text"
+                  value={profile.taxNote || ""}
+                  onChange={(e) => setProfile({ ...profile, taxNote: e.target.value })}
+                  placeholder="Bukan PKP (Harga tidak dikenakan PPN)"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
             </div>
           </div>
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1">
-            Pesan Pembayaran Default (Muncul otomatis di faktur)
+            Pesan Pembayaran / Catatan Khusus Default
           </label>
           <textarea
             rows={2}

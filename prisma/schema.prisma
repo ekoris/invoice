@@ -19,7 +19,9 @@ model CompanyProfile {
   signerRole      String   @default("Pemilik, Lingkara Labs")
   defaultNotes    String   @default("Pengerjaan sistem Site VHS tahap berikutnya akan dimulai setelah pembayaran termin I diterima.")
   taxNote         String   @default("Bukan PKP (Harga tidak dikenakan PPN)")
-  termsConditions String   @default("1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.")
+  termsConditions String   @default("1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.")
+  helpContact     String   @default("WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com")
+  thankYouNote    String   @default("Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.")
   updatedAt       DateTime @updatedAt
 }
 
@@ -85,7 +87,9 @@ model Invoice {
 
   // Tax Status & Terms
   taxNote           String?       @default("Bukan PKP (Harga tidak dikenakan PPN)")
-  termsConditions   String?       @default("1. Pembayaran ditransfer sesuai data rekening di atas.\n2. Harap konfirmasi bukti transfer via WhatsApp/Email resmi.\n3. Keterlambatan termin dapat menunda jadwal pengerjaan sistem.")
+  termsConditions   String?       @default("1. Pembayaran ditransfer sesuai nomor rekening di atas.\n2. Pembayaran dianggap sah jika dana telah masuk ke rekening penyedia jasa.\n3. Harap konfirmasi bukti transfer via WhatsApp atau email resmi.\n4. Keterlambatan pembayaran termin dapat menunda kelanjutan jadwal pengerjaan sistem.")
+  helpContact       String?       @default("WhatsApp: 082377673248 • Email: eko.rismaryanto15@gmail.com")
+  thankYouNote      String?       @default("Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan Lingkara Labs.")
 
   // Notes & Signature
   notes             String?

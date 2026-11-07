@@ -1367,23 +1367,59 @@ export default function InvoiceView({
                 <div className="font-bold text-xs uppercase tracking-wider text-slate-800 mb-2 sm:text-right">
                   Bantuan & Konfirmasi
                 </div>
-                <p className="text-slate-600 leading-relaxed">
-                  Ada pertanyaan mengenai invoice ini? Hubungi kami di:
-                  <br />
-                  <span className="font-semibold text-slate-900">
-                    {invoice.companyPhone || "082377673248"}
-                  </span>{" "}
-                  •{" "}
-                  <span className="font-semibold text-slate-900">
-                    {invoice.companyEmail || "eko.rismaryanto15@gmail.com"}
-                  </span>
-                </p>
+                {isEditing ? (
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-slate-500 block text-right">
+                      Kontak Bantuan / WhatsApp & Email:
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        invoice.helpContact ??
+                        `WhatsApp: ${invoice.companyPhone || "082377673248"} • Email: ${invoice.companyEmail || "eko.rismaryanto15@gmail.com"}`
+                      }
+                      onChange={(e) => updateField("helpContact", e.target.value)}
+                      className="w-full border border-slate-200 rounded p-1.5 text-xs text-right"
+                      placeholder="WhatsApp: ... • Email: ..."
+                    />
+                  </div>
+                ) : (
+                  <p className="text-slate-600 leading-relaxed whitespace-pre-line">
+                    Ada pertanyaan mengenai invoice ini? Hubungi kami di:
+                    <br />
+                    <span className="font-semibold text-slate-900">
+                      {invoice.helpContact ||
+                        `WhatsApp: ${invoice.companyPhone || "082377673248"} • Email: ${invoice.companyEmail || "eko.rismaryanto15@gmail.com"}`}
+                    </span>
+                  </p>
+                )}
               </div>
 
               <div className="mt-4 pt-3 border-t border-dashed border-slate-200 sm:text-right">
-                <p className="text-xs font-semibold text-[#6348f9] italic">
-                  &ldquo;Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan {invoice.companyName || "Lingkara Labs"}.&rdquo;
-                </p>
+                {isEditing ? (
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-slate-500 block text-right">
+                      Ucapan Terima Kasih / Kalimat Penutup:
+                    </label>
+                    <input
+                      type="text"
+                      value={
+                        invoice.thankYouNote ??
+                        `Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan ${invoice.companyName || "Lingkara Labs"}.`
+                      }
+                      onChange={(e) => updateField("thankYouNote", e.target.value)}
+                      className="w-full border border-slate-200 rounded p-1.5 text-xs text-right text-indigo-700 font-semibold italic"
+                      placeholder="Terima kasih atas kerja sama..."
+                    />
+                  </div>
+                ) : (
+                  <p className="text-xs font-semibold text-[#6348f9] italic">
+                    &ldquo;
+                    {invoice.thankYouNote ||
+                      `Terima kasih atas kerja sama dan kepercayaan Anda bermitra dengan ${invoice.companyName || "Lingkara Labs"}.`}
+                    &rdquo;
+                  </p>
+                )}
               </div>
             </div>
           </div>
