@@ -714,15 +714,9 @@ export default function InvoiceView({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#242b47] text-white text-xs sm:text-sm font-semibold">
-                <th className="py-3 px-4 w-[28%]">
-                  Produk <PencilIcon onClick={() => setIsEditing(true)} />
-                </th>
-                <th className="py-3 px-4 w-[40%]">
-                  Deskripsi <PencilIcon onClick={() => setIsEditing(true)} />
-                </th>
-                <th className="py-3 px-4 text-center w-[10%]">
-                  Kuantitas <PencilIcon onClick={() => setIsEditing(true)} />
-                </th>
+                <th className="py-3 px-4 w-[28%]">Produk</th>
+                <th className="py-3 px-4 w-[40%]">Deskripsi</th>
+                <th className="py-3 px-4 text-center w-[10%]">Kuantitas</th>
                 <th className="py-3 px-4 text-right w-[11%]">Harga</th>
                 <th className="py-3 px-4 text-right w-[11%]">Jumlah</th>
                 {isEditing && (
