@@ -14,9 +14,9 @@ import {
   Plus,
   Trash2,
   Save,
-  Check,
   Upload,
   CheckCircle2,
+  Check,
 } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { updateInvoice, updateInvoiceStatus } from "@/lib/actions";
@@ -28,7 +28,6 @@ interface InvoiceViewProps {
 
 export default function InvoiceView({
   invoice: initialInvoice,
-  showEditIcons = true,
 }: InvoiceViewProps) {
   const [invoice, setInvoice] = useState<InvoiceData>(initialInvoice);
   const [isEditing, setIsEditing] = useState(false);
@@ -37,7 +36,6 @@ export default function InvoiceView({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
-  const [editIconsVisible, setEditIconsVisible] = useState(showEditIcons);
 
   const logoInputRef = useRef<HTMLInputElement>(null);
   const sigInputRef = useRef<HTMLInputElement>(null);
@@ -110,10 +108,6 @@ export default function InvoiceView({
     }
     const updated = (invoice.items || []).filter((_, i) => i !== index);
     recalculateTotals(updated);
-  };
-
-  const handlePencilClick = () => {
-    setIsEditing(true);
   };
 
   // Save changes to database
@@ -235,37 +229,6 @@ export default function InvoiceView({
     }
   };
 
-  // Yellow Pencil edit icon component with active onClick
-  const PencilIcon = ({ onClick }: { onClick?: () => void }) => {
-    if (!editIconsVisible) return null;
-    return (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          if (onClick) onClick();
-          else handlePencilClick();
-        }}
-        title="Klik untuk mengedit data ini secara langsung"
-        className="no-print inline-flex items-center justify-center ml-1.5 p-0.5 text-amber-500 hover:text-amber-600 hover:bg-amber-50 rounded transition-all cursor-pointer active:scale-90 print:hidden"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-3.5 h-3.5"
-        >
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-        </svg>
-      </button>
-    );
-  };
-
   return (
     <div className="max-w-5xl mx-auto py-6 px-4 sm:px-6">
       {/* Toast Notification when saved */}
@@ -358,7 +321,7 @@ export default function InvoiceView({
             <span>{isEditing ? "Mode Edit Aktif" : "Aktifkan Edit Langsung"}</span>
           </button>
 
-          {/* Save Button when changes exist */}
+          {/* Save Button when changes exist or when editing */}
           {hasChanges && (
             <button
               type="button"
@@ -442,14 +405,16 @@ export default function InvoiceView({
               className="hidden"
               onChange={handleLogoUpload}
             />
-            <button
-              type="button"
-              onClick={() => logoInputRef.current?.click()}
-              className="no-print inline-flex items-center space-x-1.5 px-3 py-1 border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 transition-colors shadow-2xs print:hidden"
-            >
-              <Upload className="w-3 h-3 text-slate-500" />
-              <span>Upload Logo</span>
-            </button>
+            {isEditing && (
+              <button
+                type="button"
+                onClick={() => logoInputRef.current?.click()}
+                className="no-print inline-flex items-center space-x-1.5 px-3 py-1 border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 transition-colors shadow-2xs print:hidden"
+              >
+                <Upload className="w-3 h-3 text-slate-500" />
+                <span>Upload Logo</span>
+              </button>
+            )}
           </div>
 
           {/* Title & Metadata */}
@@ -463,9 +428,8 @@ export default function InvoiceView({
                   className="text-3xl font-extrabold text-indigo-600 tracking-tight text-right border-b-2 border-indigo-500 focus:outline-hidden bg-indigo-50/40 px-2 py-0.5 rounded"
                 />
               ) : (
-                <h1 className="text-4xl font-extrabold text-indigo-600 tracking-tight flex items-center">
+                <h1 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
                   {invoice.title || "Invoice"}
-                  <PencilIcon onClick={() => setIsEditing(true)} />
                 </h1>
               )}
             </div>
@@ -474,7 +438,7 @@ export default function InvoiceView({
               {/* Referensi */}
               <div className="flex justify-between items-center space-x-6">
                 <span className="text-slate-700 text-right font-normal">Referensi</span>
-                <span className="font-semibold text-slate-900 min-w-[120px] text-right flex items-center justify-end">
+                <span className="font-semibold text-slate-900 min-w-[120px] text-right">
                   {isEditing ? (
                     <input
                       type="text"
@@ -483,10 +447,7 @@ export default function InvoiceView({
                       className="border border-slate-300 rounded px-2 py-0.5 text-xs font-bold text-right w-28 focus:ring-1 focus:ring-indigo-500"
                     />
                   ) : (
-                    <>
-                      <span>{invoice.invoiceNumber}</span>
-                      <PencilIcon onClick={() => setIsEditing(true)} />
-                    </>
+                    <span>{invoice.invoiceNumber}</span>
                   )}
                 </span>
               </div>
@@ -494,7 +455,7 @@ export default function InvoiceView({
               {/* Tanggal */}
               <div className="flex justify-between items-center space-x-6">
                 <span className="text-slate-700 text-right font-normal">Tanggal</span>
-                <span className="font-semibold text-slate-900 min-w-[120px] text-right flex items-center justify-end">
+                <span className="font-semibold text-slate-900 min-w-[120px] text-right">
                   {isEditing ? (
                     <input
                       type="date"
@@ -505,10 +466,7 @@ export default function InvoiceView({
                       className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
                     />
                   ) : (
-                    <>
-                      <span>{invoice.issueDate}</span>
-                      <PencilIcon onClick={() => setIsEditing(true)} />
-                    </>
+                    <span>{invoice.issueDate}</span>
                   )}
                 </span>
               </div>
@@ -516,7 +474,7 @@ export default function InvoiceView({
               {/* Tgl. Jatuh Tempo */}
               <div className="flex justify-between items-center space-x-6">
                 <span className="text-slate-700 text-right font-normal">Tgl. Jatuh Tempo</span>
-                <span className="font-semibold text-slate-900 min-w-[120px] text-right flex items-center justify-end">
+                <span className="font-semibold text-slate-900 min-w-[120px] text-right">
                   {isEditing ? (
                     <input
                       type="date"
@@ -527,10 +485,7 @@ export default function InvoiceView({
                       className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
                     />
                   ) : (
-                    <>
-                      <span>{invoice.dueDate}</span>
-                      <PencilIcon onClick={() => setIsEditing(true)} />
-                    </>
+                    <span>{invoice.dueDate}</span>
                   )}
                 </span>
               </div>
@@ -547,7 +502,7 @@ export default function InvoiceView({
             </div>
             <div className="space-y-1.5 text-sm text-slate-700">
               {/* Nama Perusahaan */}
-              <div className="font-bold text-indigo-700 text-base flex items-center">
+              <div className="font-bold text-indigo-700 text-base">
                 {isEditing ? (
                   <input
                     type="text"
@@ -556,15 +511,12 @@ export default function InvoiceView({
                     className="w-full border border-indigo-200 rounded px-2 py-0.5 text-sm font-bold text-indigo-700"
                   />
                 ) : (
-                  <>
-                    <span>{invoice.companyName}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
-                  </>
+                  <span>{invoice.companyName}</span>
                 )}
               </div>
 
               {/* Alamat Perusahaan */}
-              <div className="flex items-start">
+              <div>
                 {isEditing ? (
                   <textarea
                     rows={2}
@@ -573,15 +525,12 @@ export default function InvoiceView({
                     className="w-full border border-slate-200 rounded px-2 py-0.5 text-xs leading-relaxed"
                   />
                 ) : (
-                  <>
-                    <span>{invoice.companyAddress}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
-                  </>
+                  <span>{invoice.companyAddress}</span>
                 )}
               </div>
 
               {/* Telp Perusahaan */}
-              <div className="flex items-center">
+              <div>
                 {isEditing ? (
                   <div className="flex items-center space-x-1 w-full text-xs">
                     <span className="text-slate-900 font-semibold">Telp:</span>
@@ -596,13 +545,12 @@ export default function InvoiceView({
                   <>
                     <span className="text-slate-900">Telp: </span>
                     <span className="ml-1">{invoice.companyPhone}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
                   </>
                 )}
               </div>
 
               {/* Email Perusahaan */}
-              <div className="flex items-center">
+              <div>
                 {isEditing ? (
                   <div className="flex items-center space-x-1 w-full text-xs">
                     <span className="text-slate-900 font-semibold">Email:</span>
@@ -617,7 +565,6 @@ export default function InvoiceView({
                   <>
                     <span className="text-slate-900">Email: </span>
                     <span className="ml-1">{invoice.companyEmail}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
                   </>
                 )}
               </div>
@@ -631,7 +578,7 @@ export default function InvoiceView({
             </div>
             <div className="space-y-1.5 text-sm text-slate-700">
               {/* Nama Klien */}
-              <div className="font-bold text-indigo-700 text-base flex items-center">
+              <div className="font-bold text-indigo-700 text-base">
                 {isEditing ? (
                   <input
                     type="text"
@@ -640,15 +587,12 @@ export default function InvoiceView({
                     className="w-full border border-indigo-200 rounded px-2 py-0.5 text-sm font-bold text-indigo-700"
                   />
                 ) : (
-                  <>
-                    <span>{invoice.clientName}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
-                  </>
+                  <span>{invoice.clientName}</span>
                 )}
               </div>
 
               {/* Alamat Klien */}
-              <div className="flex items-start">
+              <div>
                 {isEditing ? (
                   <textarea
                     rows={2}
@@ -657,15 +601,12 @@ export default function InvoiceView({
                     className="w-full border border-slate-200 rounded px-2 py-0.5 text-xs leading-relaxed"
                   />
                 ) : (
-                  <>
-                    <span>{invoice.clientAddress}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
-                  </>
+                  <span>{invoice.clientAddress}</span>
                 )}
               </div>
 
               {/* Telp Klien */}
-              <div className="flex items-center">
+              <div>
                 {isEditing ? (
                   <div className="flex items-center space-x-1 w-full text-xs">
                     <span className="text-slate-900 font-semibold">Telp:</span>
@@ -680,13 +621,12 @@ export default function InvoiceView({
                   <>
                     <span className="text-slate-900">Telp: </span>
                     <span className="ml-1">{invoice.clientPhone}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
                   </>
                 )}
               </div>
 
               {/* Email Klien */}
-              <div className="flex items-center">
+              <div>
                 {isEditing ? (
                   <div className="flex items-center space-x-1 w-full text-xs">
                     <span className="text-slate-900 font-semibold">Email:</span>
@@ -701,7 +641,6 @@ export default function InvoiceView({
                   <>
                     <span className="text-slate-900">Email: </span>
                     <span className="ml-1">{invoice.clientEmail}</span>
-                    <PencilIcon onClick={() => setIsEditing(true)} />
                   </>
                 )}
               </div>
@@ -740,10 +679,7 @@ export default function InvoiceView({
                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs font-semibold focus:ring-1 focus:ring-indigo-500"
                         />
                       ) : (
-                        <div className="flex items-center">
-                          <span>{item.product}</span>
-                          <PencilIcon onClick={() => setIsEditing(true)} />
-                        </div>
+                        <span>{item.product}</span>
                       )}
                     </td>
 
@@ -759,10 +695,7 @@ export default function InvoiceView({
                           className="w-full border border-slate-300 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-indigo-500"
                         />
                       ) : (
-                        <div className="flex items-start">
-                          <span>{item.description}</span>
-                          <PencilIcon onClick={() => setIsEditing(true)} />
-                        </div>
+                        <span>{item.description}</span>
                       )}
                     </td>
 
@@ -780,10 +713,7 @@ export default function InvoiceView({
                           className="w-16 border border-slate-300 rounded px-1 py-1 text-xs font-semibold text-center focus:ring-1 focus:ring-indigo-500"
                         />
                       ) : (
-                        <div className="flex items-center justify-center">
-                          <span>{item.quantity}</span>
-                          <PencilIcon onClick={() => setIsEditing(true)} />
-                        </div>
+                        <span>{item.quantity}</span>
                       )}
                     </td>
 
@@ -801,10 +731,7 @@ export default function InvoiceView({
                           className="w-28 border border-slate-300 rounded px-1.5 py-1 text-xs font-medium text-right focus:ring-1 focus:ring-indigo-500"
                         />
                       ) : (
-                        <div className="flex items-center justify-end">
-                          <span>{formatNumberIndo(item.unitPrice)}</span>
-                          <PencilIcon onClick={() => setIsEditing(true)} />
-                        </div>
+                        <span>{formatNumberIndo(item.unitPrice)}</span>
                       )}
                     </td>
 
@@ -841,25 +768,26 @@ export default function InvoiceView({
           </table>
         </div>
 
-        {/* Add Product Button (Always active and clickable matching screenshot!) */}
-        <div className="no-print mt-3 flex justify-center print:hidden">
-          <button
-            type="button"
-            onClick={handleAddItem}
-            className="inline-flex items-center space-x-1.5 px-4 py-1.5 border border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-md text-xs font-semibold transition-colors shadow-2xs active:scale-95 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>+ Tambah Produk</span>
-          </button>
-        </div>
+        {/* Add Product Button (Shown in edit mode or when user wants to add items) */}
+        {isEditing && (
+          <div className="no-print mt-3 flex justify-center print:hidden">
+            <button
+              type="button"
+              onClick={handleAddItem}
+              className="inline-flex items-center space-x-1.5 px-4 py-1.5 border border-indigo-600 text-indigo-600 hover:bg-indigo-50 rounded-md text-xs font-semibold transition-colors shadow-2xs active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Tambah Produk</span>
+            </button>
+          </div>
+        )}
 
         {/* Bottom Section: Notes & Total */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mt-6">
           {/* Notes / Pesan */}
           <div className="md:col-span-7">
-            <div className="font-bold text-indigo-700 text-sm mb-1 flex items-center">
+            <div className="font-bold text-indigo-700 text-sm mb-1">
               Pesan
-              <PencilIcon onClick={() => setIsEditing(true)} />
             </div>
             <div className="border border-slate-900 rounded-xs p-3 min-h-[90px] text-xs sm:text-sm text-slate-800 leading-relaxed relative bg-white">
               {isEditing ? (
@@ -870,12 +798,7 @@ export default function InvoiceView({
                   className="w-full border border-slate-200 rounded p-1 text-xs focus:ring-1 focus:ring-indigo-500"
                 />
               ) : (
-                <>
-                  <div>{invoice.notes || "Tidak ada catatan khusus."}</div>
-                  <div className="absolute right-2 bottom-2">
-                    <PencilIcon onClick={() => setIsEditing(true)} />
-                  </div>
-                </>
+                <div>{invoice.notes || "Tidak ada catatan khusus."}</div>
               )}
             </div>
           </div>
@@ -921,7 +844,7 @@ export default function InvoiceView({
         {/* Signature & Closing */}
         <div className="mt-12 flex justify-end">
           <div className="w-60 text-right flex flex-col items-end">
-            <div className="text-sm font-semibold text-slate-800 mb-2 flex items-center">
+            <div className="text-sm font-semibold text-slate-800 mb-2">
               {isEditing ? (
                 <input
                   type="text"
@@ -930,10 +853,7 @@ export default function InvoiceView({
                   className="text-right border border-slate-300 rounded px-1 py-0.5 text-xs font-semibold w-28"
                 />
               ) : (
-                <>
-                  <span>{invoice.signatureTitle || "Hormat Kami,"}</span>
-                  <PencilIcon onClick={() => setIsEditing(true)} />
-                </>
+                <span>{invoice.signatureTitle || "Hormat Kami,"}</span>
               )}
             </div>
 
@@ -948,22 +868,28 @@ export default function InvoiceView({
 
             {invoice.signatureImage ? (
               <div
-                onClick={() => sigInputRef.current?.click()}
-                className="relative w-40 h-20 my-1 cursor-pointer group"
-                title="Klik untuk mengganti tanda tangan"
+                onClick={() => isEditing && sigInputRef.current?.click()}
+                className={`relative w-40 h-20 my-1 group ${
+                  isEditing ? "cursor-pointer" : ""
+                }`}
+                title={isEditing ? "Klik untuk mengganti tanda tangan" : undefined}
               >
                 <Image
                   src={invoice.signatureImage}
                   alt="Tanda Tangan"
                   fill
-                  className="object-contain object-right group-hover:opacity-80 transition-opacity"
+                  className={`object-contain object-right ${
+                    isEditing ? "group-hover:opacity-80 transition-opacity" : ""
+                  }`}
                   unoptimized
                 />
-                <span className="no-print absolute inset-0 flex items-center justify-center bg-black/40 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 rounded transition-opacity print:hidden">
-                  Ganti TTD
-                </span>
+                {isEditing && (
+                  <span className="no-print absolute inset-0 flex items-center justify-center bg-black/40 text-white text-[10px] font-semibold opacity-0 group-hover:opacity-100 rounded transition-opacity print:hidden">
+                    Ganti TTD
+                  </span>
+                )}
               </div>
-            ) : (
+            ) : isEditing ? (
               <button
                 type="button"
                 onClick={() => sigInputRef.current?.click()}
@@ -971,10 +897,10 @@ export default function InvoiceView({
               >
                 + Upload Tanda Tangan
               </button>
-            )}
+            ) : null}
 
             {/* Signer Name */}
-            <div className="text-sm font-bold text-slate-900 mt-1 border-t border-slate-300 pt-1 w-full text-right flex items-center justify-end">
+            <div className="text-sm font-bold text-slate-900 mt-1 border-t border-slate-300 pt-1 w-full text-right">
               {isEditing ? (
                 <input
                   type="text"
@@ -983,10 +909,7 @@ export default function InvoiceView({
                   className="text-right border border-slate-300 rounded px-1.5 py-0.5 text-xs font-bold w-full"
                 />
               ) : (
-                <>
-                  <span>{invoice.signatureName}</span>
-                  <PencilIcon onClick={() => setIsEditing(true)} />
-                </>
+                <span>{invoice.signatureName}</span>
               )}
             </div>
           </div>
