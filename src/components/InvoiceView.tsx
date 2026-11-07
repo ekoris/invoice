@@ -5,14 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { InvoiceData } from "@/lib/types";
 import { formatNumberIndo, formatRupiah } from "@/lib/formatters";
-import { Edit2, Printer, ArrowLeft, CheckCircle2, Clock, Send, Ban } from "lucide-react";
+import {
+  Edit2,
+  Printer,
+  ArrowLeft,
+  Download,
+  Loader2,
+} from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { updateInvoiceStatus } from "@/lib/actions";
 
 interface InvoiceViewProps {
   invoice: InvoiceData;
   showEditIcons?: boolean;
-  onEditField?: (field: string) => void;
 }
 
 export default function InvoiceView({
@@ -21,13 +26,48 @@ export default function InvoiceView({
 }: InvoiceViewProps) {
   const [invoice, setInvoice] = useState(initialInvoice);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [editIconsVisible, setEditIconsVisible] = useState(showEditIcons);
 
   const handlePrint = () => {
     window.print();
   };
 
-  const handleStatusChange = async (newStatus: "DRAFT" | "TERKIRIM" | "LUNAS" | "JATUH_TEMPO" | "BATAL") => {
+  const handleDownloadPdf = async () => {
+    if (!invoice.id) {
+      alert("Simpan invoice terlebih dahulu sebelum mengunduh PDF.");
+      return;
+    }
+
+    setIsDownloadingPdf(true);
+    try {
+      const res = await fetch(`/api/invoices/${invoice.id}/pdf`);
+      if (!res.ok) {
+        throw new Error("Gagal mengunduh file PDF dari server");
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeNum = (invoice.invoiceNumber || "INVOICE").replace(/[\/\\]/g, "-");
+      a.download = `${safeNum}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error("Download PDF error:", err);
+      // Fallback: direct window.open or print
+      window.open(`/api/invoices/${invoice.id}/pdf`, "_blank");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
+  const handleStatusChange = async (
+    newStatus: "DRAFT" | "TERKIRIM" | "LUNAS" | "JATUH_TEMPO" | "BATAL"
+  ) => {
     if (!invoice.id) return;
     setIsUpdatingStatus(true);
     try {
@@ -87,14 +127,16 @@ export default function InvoiceView({
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Quick status dropdown / actions */}
           <div className="flex items-center space-x-1 border border-slate-200 rounded-lg p-1 bg-slate-50 text-xs">
             <button
               onClick={() => handleStatusChange("DRAFT")}
               disabled={isUpdatingStatus || invoice.status === "DRAFT"}
               className={`px-2 py-1 rounded transition-colors ${
-                invoice.status === "DRAFT" ? "bg-amber-100 text-amber-800 font-bold" : "hover:bg-white text-slate-600"
+                invoice.status === "DRAFT"
+                  ? "bg-amber-100 text-amber-800 font-bold"
+                  : "hover:bg-white text-slate-600"
               }`}
             >
               Draft
@@ -103,7 +145,9 @@ export default function InvoiceView({
               onClick={() => handleStatusChange("TERKIRIM")}
               disabled={isUpdatingStatus || invoice.status === "TERKIRIM"}
               className={`px-2 py-1 rounded transition-colors ${
-                invoice.status === "TERKIRIM" ? "bg-blue-100 text-blue-800 font-bold" : "hover:bg-white text-slate-600"
+                invoice.status === "TERKIRIM"
+                  ? "bg-blue-100 text-blue-800 font-bold"
+                  : "hover:bg-white text-slate-600"
               }`}
             >
               Terkirim
@@ -112,7 +156,9 @@ export default function InvoiceView({
               onClick={() => handleStatusChange("LUNAS")}
               disabled={isUpdatingStatus || invoice.status === "LUNAS"}
               className={`px-2 py-1 rounded transition-colors ${
-                invoice.status === "LUNAS" ? "bg-emerald-100 text-emerald-800 font-bold" : "hover:bg-white text-slate-600"
+                invoice.status === "LUNAS"
+                  ? "bg-emerald-100 text-emerald-800 font-bold"
+                  : "hover:bg-white text-slate-600"
               }`}
             >
               Lunas
@@ -121,7 +167,9 @@ export default function InvoiceView({
               onClick={() => handleStatusChange("JATUH_TEMPO")}
               disabled={isUpdatingStatus || invoice.status === "JATUH_TEMPO"}
               className={`px-2 py-1 rounded transition-colors ${
-                invoice.status === "JATUH_TEMPO" ? "bg-rose-100 text-rose-800 font-bold" : "hover:bg-white text-slate-600"
+                invoice.status === "JATUH_TEMPO"
+                  ? "bg-rose-100 text-rose-800 font-bold"
+                  : "hover:bg-white text-slate-600"
               }`}
             >
               Jatuh Tempo
@@ -146,12 +194,33 @@ export default function InvoiceView({
             </Link>
           )}
 
+          {/* DEDICATED PDF DOWNLOAD BUTTON */}
+          <button
+            onClick={handleDownloadPdf}
+            disabled={isDownloadingPdf}
+            className="inline-flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-1.5 rounded-lg shadow-xs transition-colors disabled:opacity-50"
+            title="Download PDF resmi dengan engine PDF presisi tinggi"
+          >
+            {isDownloadingPdf ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Memproses PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>Download PDF</span>
+              </>
+            )}
+          </button>
+
           <button
             onClick={handlePrint}
-            className="inline-flex items-center space-x-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-1.5 rounded-lg shadow-xs transition-colors"
+            className="inline-flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold px-3.5 py-1.5 rounded-lg shadow-xs transition-colors"
+            title="Cetak langsung lewat printer browser"
           >
             <Printer className="w-4 h-4" />
-            <span>Cetak / PDF</span>
+            <span>Cetak</span>
           </button>
         </div>
       </div>

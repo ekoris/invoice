@@ -12,13 +12,13 @@ import {
   Eye,
   Edit2,
   Trash2,
-  Printer,
+  Download,
   FileText,
-  DollarSign,
   CheckCircle,
   AlertCircle,
   Clock,
   ArrowUpRight,
+  Loader2,
 } from "lucide-react";
 
 interface InvoiceListProps {
@@ -30,6 +30,7 @@ export default function InvoiceList({ initialInvoices }: InvoiceListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // Filter calculations
   const filteredInvoices = invoices.filter((inv) => {
@@ -55,6 +56,31 @@ export default function InvoiceList({ initialInvoices }: InvoiceListProps) {
     (i) => i.status === "TERKIRIM" || i.status === "DRAFT"
   ).length;
   const overdueCount = invoices.filter((i) => i.status === "JATUH_TEMPO").length;
+
+  // Direct PDF Download
+  const handleDownloadPdf = async (id: string, invoiceNumber: string) => {
+    setDownloadingId(id);
+    try {
+      const res = await fetch(`/api/invoices/${id}/pdf`);
+      if (!res.ok) throw new Error("Gagal mengunduh file PDF");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const safeNum = (invoiceNumber || "INVOICE").replace(/[\/\\]/g, "-");
+      a.download = `${safeNum}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      console.error(e);
+      window.open(`/api/invoices/${id}/pdf`, "_blank");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   // Quick Status changer
   const handleStatusChange = async (id: string, status: InvoiceStatus) => {
@@ -296,10 +322,25 @@ export default function InvoiceList({ initialInvoices }: InvoiceListProps) {
                         <Link
                           href={`/invoices/${inv.id}`}
                           className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
-                          title="Lihat / Cetak"
+                          title="Lihat Faktur"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
+
+                        {/* Direct PDF Download button */}
+                        <button
+                          onClick={() => inv.id && handleDownloadPdf(inv.id, inv.invoiceNumber)}
+                          disabled={downloadingId === inv.id}
+                          className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+                          title="Download PDF"
+                        >
+                          {downloadingId === inv.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                          ) : (
+                            <Download className="w-4 h-4" />
+                          )}
+                        </button>
+
                         <Link
                           href={`/invoices/${inv.id}/edit`}
                           className="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
@@ -307,6 +348,7 @@ export default function InvoiceList({ initialInvoices }: InvoiceListProps) {
                         >
                           <Edit2 className="w-4 h-4" />
                         </Link>
+
                         <button
                           onClick={() => inv.id && handleDelete(inv.id, inv.invoiceNumber)}
                           disabled={deletingId === inv.id}
