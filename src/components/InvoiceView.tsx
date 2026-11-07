@@ -466,7 +466,7 @@ export default function InvoiceView({
                       className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
                     />
                   ) : (
-                    <span>{invoice.issueDate}</span>
+                    <span>{formatDateDDMMYYYY(invoice.issueDate)}</span>
                   )}
                 </span>
               </div>
@@ -485,7 +485,7 @@ export default function InvoiceView({
                       className="border border-slate-300 rounded px-1.5 py-0.5 text-xs font-semibold text-right w-32 focus:ring-1 focus:ring-indigo-500"
                     />
                   ) : (
-                    <span>{invoice.dueDate}</span>
+                    <span>{formatDateDDMMYYYY(invoice.dueDate)}</span>
                   )}
                 </span>
               </div>

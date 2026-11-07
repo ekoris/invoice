@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { InvoiceData } from "./types";
-import { formatNumberIndo, formatRupiah } from "./formatters";
+import { formatNumberIndo, formatRupiah, formatDateDDMMYYYY } from "./formatters";
 
 /**
  * Convert local asset or public path to base64 data URI
@@ -293,11 +293,11 @@ export function generateInvoiceHtml(invoice: InvoiceData): string {
           </tr>
           <tr>
             <td class="meta-label">Tanggal</td>
-            <td class="meta-val">${escapeHtml(invoice.issueDate)}</td>
+            <td class="meta-val">${escapeHtml(formatDateDDMMYYYY(invoice.issueDate))}</td>
           </tr>
           <tr>
             <td class="meta-label">Tgl. Jatuh Tempo</td>
-            <td class="meta-val">${escapeHtml(invoice.dueDate)}</td>
+            <td class="meta-val">${escapeHtml(formatDateDDMMYYYY(invoice.dueDate))}</td>
           </tr>
         </table>
       </div>

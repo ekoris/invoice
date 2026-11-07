@@ -40,15 +40,34 @@ export function parseNumberIndo(val: string | number): number {
 }
 
 /**
- * Format Date to DD/MM/YYYY
+ * Format Date to DD/MM/YYYY (e.g. "07/11/2026")
  */
-export function formatDateDDMMYYYY(date: Date | string): string {
+export function formatDateDDMMYYYY(date: Date | string | undefined | null): string {
   if (!date) return "";
+
+  if (typeof date === "string") {
+    const trimmed = date.trim();
+    // Case 1: Already DD/MM/YYYY or D/M/YYYY
+    const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (slashMatch) {
+      const day = slashMatch[1].padStart(2, "0");
+      const month = slashMatch[2].padStart(2, "0");
+      const year = slashMatch[3];
+      return `${day}/${month}/${year}`;
+    }
+    // Case 2: YYYY-MM-DD or YYYY-M-D
+    const dashMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (dashMatch) {
+      const year = dashMatch[1];
+      const month = dashMatch[2].padStart(2, "0");
+      const day = dashMatch[3].padStart(2, "0");
+      return `${day}/${month}/${year}`;
+    }
+  }
+
   const d = typeof date === "string" ? new Date(date) : date;
   if (isNaN(d.getTime())) {
-    // If it's already in DD/MM/YYYY format
-    if (typeof date === "string" && date.includes("/")) return date;
-    return "";
+    return String(date);
   }
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
@@ -57,19 +76,23 @@ export function formatDateDDMMYYYY(date: Date | string): string {
 }
 
 /**
- * Format DD/MM/YYYY back to YYYY-MM-DD for HTML date inputs
+ * Format DD/MM/YYYY back to YYYY-MM-DD for HTML <input type="date">
  */
-export function toInputDate(dateStr: string): string {
+export function toInputDate(dateStr: string | undefined | null): string {
   if (!dateStr) return "";
-  if (dateStr.includes("-") && dateStr.split("-").length === 3) {
-    return dateStr;
+  const trimmed = dateStr.trim();
+  // If DD/MM/YYYY or D/M/YYYY -> YYYY-MM-DD
+  const slashMatch = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (slashMatch) {
+    const day = slashMatch[1].padStart(2, "0");
+    const month = slashMatch[2].padStart(2, "0");
+    const year = slashMatch[3];
+    return `${year}-${month}-${day}`;
   }
-  if (dateStr.includes("/")) {
-    const parts = dateStr.split("/");
-    if (parts.length === 3) {
-      // parts[0] is day, parts[1] is month, parts[2] is year
-      return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
-    }
+  // If already YYYY-MM-DD
+  const dashMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (dashMatch) {
+    return `${dashMatch[1]}-${dashMatch[2]}-${dashMatch[3]}`;
   }
   return dateStr;
 }

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { InvoiceData, InvoiceStatus } from "@/lib/types";
-import { formatRupiah } from "@/lib/formatters";
+import { formatRupiah, formatDateDDMMYYYY } from "@/lib/formatters";
 import StatusBadge from "./StatusBadge";
 import { deleteInvoice, updateInvoiceStatus } from "@/lib/actions";
 import {
@@ -287,8 +287,8 @@ export default function InvoiceList({ initialInvoices }: InvoiceListProps) {
 
                     {/* Dates */}
                     <td className="py-4 px-6 whitespace-nowrap text-xs text-slate-600">
-                      <div>Tgl: {inv.issueDate}</div>
-                      <div className="text-slate-400">Tempo: {inv.dueDate}</div>
+                      <div>Tgl: {formatDateDDMMYYYY(inv.issueDate)}</div>
+                      <div className="text-slate-400">Tempo: {formatDateDDMMYYYY(inv.dueDate)}</div>
                     </td>
 
                     {/* Total Amount */}
