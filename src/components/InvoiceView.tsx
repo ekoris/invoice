@@ -407,7 +407,7 @@ export default function InvoiceView({
           {/* Logo & Upload Logo button */}
           <div className="flex flex-col items-start space-y-2">
             {invoice.companyLogo ? (
-              <div className="relative w-44 h-16 group">
+              <div className="relative w-44 h-14 group">
                 <Image
                   src={invoice.companyLogo}
                   alt={invoice.companyName}
@@ -453,16 +453,16 @@ export default function InvoiceView({
 
           {/* Title & Metadata */}
           <div className="flex flex-col items-end">
-            <div className="flex items-center mb-4">
+            <div className="flex items-center mb-3">
               {isEditing ? (
                 <input
                   type="text"
                   value={invoice.title || "Invoice"}
                   onChange={(e) => updateField("title", e.target.value)}
-                  className="text-3xl font-extrabold text-indigo-600 tracking-tight text-right border-b-2 border-indigo-500 focus:outline-hidden bg-indigo-50/40 px-2 py-0.5 rounded"
+                  className="text-2xl font-bold text-[#6348f9] tracking-tight text-right border-b-2 border-[#6348f9] focus:outline-hidden bg-indigo-50/40 px-2 py-0.5 rounded"
                 />
               ) : (
-                <h1 className="text-4xl font-extrabold text-indigo-600 tracking-tight">
+                <h1 className="text-2xl sm:text-[26px] font-bold text-[#6348f9] tracking-tight">
                   {invoice.title || "Invoice"}
                 </h1>
               )}

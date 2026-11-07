@@ -96,19 +96,19 @@ export function generateInvoiceHtml(invoice: InvoiceData): string {
       width: 220px;
     }
     .logo-container img {
-      max-width: 180px;
-      max-height: 65px;
+      max-width: 160px;
+      max-height: 50px;
       object-fit: contain;
     }
     .invoice-title-block {
       text-align: right;
     }
     .invoice-title {
-      font-size: 38px;
-      font-weight: 800;
-      color: #5b5bf0;
-      margin: 0 0 12px 0;
-      letter-spacing: -0.5px;
+      font-size: 26px;
+      font-weight: 700;
+      color: #6348f9;
+      margin: 0 0 8px 0;
+      letter-spacing: -0.3px;
     }
     .meta-table {
       margin-left: auto;
