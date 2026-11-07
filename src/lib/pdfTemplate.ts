@@ -494,9 +494,9 @@ export function generateInvoiceHtml(invoice: InvoiceData): string {
       </tbody>
     </table>
 
-    <!-- Rincian Kontrak & Termin Pembayaran (Jika Ada) -->
+    <!-- Rincian Kontrak & Termin Pembayaran (Hanya Muncul Jika Diaktifkan/Opsional) -->
     ${
-      invoice.contractTotal && invoice.contractTotal > 0
+      invoice.showContractDetails && invoice.contractTotal && invoice.contractTotal > 0
         ? `
       <div class="contract-box">
         <div class="contract-header">

@@ -43,6 +43,7 @@ export interface InvoiceData {
   total: number;
 
   // Contract & Term Breakdown
+  showContractDetails?: boolean;
   contractTotal?: number;
   contractTerm?: string;
   contractPaid?: number;

@@ -82,7 +82,8 @@ async function main() {
       discount: 0,
       total: 4800000,
 
-      // Kontrak & Termin Eksplisit
+      // Kontrak & Termin Eksplisit (Opsional)
+      showContractDetails: true,
       contractTotal: 16000000,
       contractTerm: "Termin I (DP 30%)",
       contractPaid: 0,
@@ -129,7 +130,8 @@ async function main() {
       discount: 0,
       total: 4800000,
 
-      // Kontrak & Termin Eksplisit
+      // Kontrak & Termin Eksplisit (Opsional)
+      showContractDetails: true,
       contractTotal: 16000000,
       contractTerm: "Termin I (DP 30%)",
       contractPaid: 0,

@@ -96,6 +96,7 @@ export async function createInvoice(data: InvoiceData) {
       discount: data.discount || 0,
       total: data.total,
 
+      showContractDetails: Boolean(data.showContractDetails),
       contractTotal: Number(data.contractTotal) || 0,
       contractTerm: data.contractTerm || "Termin I (DP 30%)",
       contractPaid: Number(data.contractPaid) || 0,
@@ -172,6 +173,7 @@ export async function updateInvoice(id: string, data: InvoiceData) {
       discount: data.discount || 0,
       total: data.total,
 
+      showContractDetails: Boolean(data.showContractDetails),
       contractTotal: Number(data.contractTotal) || 0,
       contractTerm: data.contractTerm || "Termin I (DP 30%)",
       contractPaid: Number(data.contractPaid) || 0,

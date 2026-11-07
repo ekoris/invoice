@@ -97,7 +97,8 @@ export default function InvoiceForm({
     signerRole: initialInvoice?.signerRole || companyProfile.signerRole || "Pemilik, Lingkara Labs",
     showSignature: initialInvoice?.showSignature !== undefined ? initialInvoice.showSignature : true,
 
-    // Contract & Breakdown
+    // Contract & Breakdown (Opsional)
+    showContractDetails: initialInvoice ? Boolean(initialInvoice.showContractDetails) : false,
     contractTotal: initialInvoice?.contractTotal ?? 16000000,
     contractTerm: initialInvoice?.contractTerm || "Termin I (DP 30%)",
     contractPaid: initialInvoice?.contractPaid || 0,
@@ -800,62 +801,79 @@ export default function InvoiceForm({
             </div>
           </div>
 
-          {/* Section 4: Rincian Kontrak & Termin Pembayaran */}
+          {/* Section 4: Rincian Kontrak & Termin Pembayaran (Opsional) */}
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xs space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 gap-2">
               <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-indigo-600" />
                 <span>Rincian Kontrak & Termin Pembayaran</span>
+                <span className="text-xs font-normal text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
+                  Opsional
+                </span>
               </h2>
-              <span className="text-xs text-slate-500">
-                Opsional (Sangat disarankan untuk termin/DP)
-              </span>
+              <label className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={Boolean(formData.showContractDetails)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, showContractDetails: e.target.checked })
+                  }
+                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                />
+                <span>Aktifkan Rincian Kontrak (DP / Termin)</span>
+              </label>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Total Nilai Kontrak (Rp)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  value={formData.contractTotal || 0}
-                  onChange={(e) => {
-                    const val = Number(e.target.value) || 0;
-                    setFormData({
-                      ...formData,
-                      contractTotal: val,
-                      contractRemaining: Math.max(0, val - ((formData.contractPaid || 0) + formData.total)),
-                    });
-                  }}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold"
-                />
-              </div>
+            {formData.showContractDetails ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Total Nilai Kontrak (Rp)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={formData.contractTotal || 0}
+                    onChange={(e) => {
+                      const val = Number(e.target.value) || 0;
+                      setFormData({
+                        ...formData,
+                        contractTotal: val,
+                        contractRemaining: Math.max(0, val - ((formData.contractPaid || 0) + formData.total)),
+                      });
+                    }}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm font-semibold"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Keterangan Termin Ini
-                </label>
-                <input
-                  type="text"
-                  value={formData.contractTerm || ""}
-                  placeholder="Contoh: Termin I (DP 30%)"
-                  onChange={(e) => setFormData({ ...formData, contractTerm: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Keterangan Termin Ini
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.contractTerm || ""}
+                    placeholder="Contoh: Termin I (DP 30%)"
+                    onChange={(e) => setFormData({ ...formData, contractTerm: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Sisa Nilai Kontrak (Otomatis)
-                </label>
-                <div className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-sm font-bold text-slate-700">
-                  {formatRupiah(formData.contractRemaining)}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Sisa Nilai Kontrak (Otomatis)
+                  </label>
+                  <div className="px-3 py-2 bg-slate-100 border border-slate-200 rounded-lg text-sm font-bold text-slate-700">
+                    {formatRupiah(formData.contractRemaining)}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-xs text-slate-500 italic py-1">
+                Bagian ini non-aktif. Centang kotak di atas jika tagihan ini adalah bagian dari kontrak bertahap atau pembayaran uang muka (DP).
+              </p>
+            )}
           </div>
 
           {/* Section 5: Informasi Pembayaran, Catatan & Perhitungan Biaya */}

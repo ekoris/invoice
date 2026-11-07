@@ -869,9 +869,27 @@ export default function InvoiceView({
           </div>
         )}
 
-        {/* Rincian Kontrak & Termin Pembayaran (Eksplisit untuk DP/Termin) */}
-        {((invoice.contractTotal && invoice.contractTotal > 0) || isEditing) && (
-          <div className="mt-6 bg-slate-50 border border-slate-200/90 rounded-xl p-4 sm:p-5">
+        {/* Toggle Rincian Kontrak & Termin (Opsional di Mode Edit) */}
+        {isEditing && (
+          <div className="no-print mt-5 pt-3 border-t border-dashed border-slate-200 flex items-center justify-between print:hidden">
+            <label className="inline-flex items-center space-x-2 text-xs font-semibold text-slate-700 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg cursor-pointer hover:bg-slate-100 transition-colors">
+              <input
+                type="checkbox"
+                checked={Boolean(invoice.showContractDetails)}
+                onChange={(e) => updateField("showContractDetails", e.target.checked)}
+                className="rounded text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>Sertakan Rincian Kontrak & Termin Pembayaran (DP / Termin Bertahap)</span>
+            </label>
+            <span className="text-[11px] text-slate-400">
+              {invoice.showContractDetails ? "Rincian kontrak aktif" : "Opsional (Non-aktif)"}
+            </span>
+          </div>
+        )}
+
+        {/* Rincian Kontrak & Termin Pembayaran (Hanya Muncul Jika Diaktifkan) */}
+        {invoice.showContractDetails && (
+          <div className="mt-5 bg-slate-50 border border-slate-200/90 rounded-xl p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-3 border-b border-slate-200 gap-2">
               <div className="flex items-center space-x-2 text-slate-900 font-bold text-sm">
                 <FileText className="w-4 h-4 text-[#6348f9]" />

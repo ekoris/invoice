@@ -73,11 +73,12 @@ model Invoice {
   discount          Float         @default(0)
   total             Float         @default(0)
 
-  // Contract & Term Breakdown
-  contractTotal     Float?        @default(0)
-  contractTerm      String?       @default("Termin I (DP 30%)")
-  contractPaid      Float?        @default(0)
-  contractRemaining Float?        @default(0)
+  // Contract & Term Breakdown (Opsional)
+  showContractDetails Boolean?     @default(false)
+  contractTotal       Float?       @default(0)
+  contractTerm        String?      @default("Termin I (DP 30%)")
+  contractPaid        Float?       @default(0)
+  contractRemaining   Float?       @default(0)
 
   // Payment Details
   bankName          String?       @default("Bank Central Asia (BCA)")
